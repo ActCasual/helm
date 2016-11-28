@@ -60,6 +60,8 @@ class PatchBrowser : public Component,
     File getSelectedPatch();
     void loadNextPatch();
     void loadPrevPatch();
+    void randFromRef();
+    void randFromCurrent();
 
     void setListener(PatchSelectedListener* listener) { listener_ = listener; }
     void setSaveSection(SaveSection* save_section);

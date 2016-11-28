@@ -21,6 +21,8 @@
 #include "load_save.h"
 #include "patch_browser.h"
 
+#include <cmath>
+
 #define WIDTH1_PERCENT 0.2
 #define TEXT_PADDING 4.0f
 #define LINUX_SYSTEM_PATCH_DIRECTORY "/usr/share/helm/patches"
@@ -147,6 +149,8 @@ PatchBrowser::PatchBrowser() : Component("patch_browser") {
   hide_button_ = new TextButton("X");
   hide_button_->addListener(this);
   addAndMakeVisible(hide_button_);
+
+  srand (time(NULL));
 
   addKeyListener(this);
 }
@@ -413,4 +417,32 @@ float PatchBrowser::getNarrowWidth() {
 
 float PatchBrowser::getWideWidth() {
   return (getWidth() - 5.0f * BROWSE_PADDING) * (0.5f - WIDTH1_PERCENT);
+}
+
+void PatchBrowser::randFromRef() {
+  SynthGuiInterface* parent = findParentComponentOfClass<SynthGuiInterface>();
+  if (parent == nullptr)
+    return;
+  SynthBase* synth = parent->getSynth();
+  mopo::control_map controls = synth->getControls();
+  //controls["beats_per_minute"]->set(180);
+  std::cout << "name\tmin\tmax\tcurrent\trandom" << std::endl;
+  for (auto control : controls) {
+    String name = control.first;
+    if (name == "volume")
+      continue;
+    //std::cout << name << ":\t" << control.second << std::endl;
+    mopo::ValueDetails details = mopo::Parameters::getDetails(name.toStdString());
+    mopo::mopo_float rand_val = details.min + 1.0*(details.max-details.min)*rand()/RAND_MAX;
+    if (details.steps)
+        rand_val = floor(rand_val + 0.5);
+    std::cout << name << "\t" << details.min << "\t" << details.max << "\t" << control.second->value() << "\t" << rand_val << std::endl;
+    control.second->set(rand_val);
+  }
+  parent->updateFullGui();
+  std::cout << "HEYHEY!!!!! randFromRef() called" << std::endl;
+}
+
+void PatchBrowser::randFromCurrent() {
+  std::cout << "HEYHEY!!!!! randFromCurrent() called" << std::endl;
 }

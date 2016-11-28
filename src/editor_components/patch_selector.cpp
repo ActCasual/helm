@@ -19,6 +19,7 @@
 #include "fonts.h"
 #include "load_save.h"
 #include "synth_gui_interface.h"
+#include "text_look_and_feel.h" 
 
 #define TEXT_PADDING 4.0f
 
@@ -44,6 +45,13 @@ PatchSelector::PatchSelector() : SynthSection("patch_selector"),
   browse_->setButtonText(TRANS("BROWSE"));
   browse_->setColour(TextButton::buttonColourId, Colour(0xff303030));
   browse_->setColour(TextButton::textColourOffId, Colours::white);
+
+  addButton(rand_from_ref_ = new TextButton("R"));
+  rand_from_ref_->setLookAndFeel(TextLookAndFeel::instance());
+  
+  addButton(rand_from_current_ = new TextButton("r"));
+  rand_from_current_->setLookAndFeel(TextLookAndFeel::instance());
+
 }
 
 PatchSelector::~PatchSelector() {
@@ -51,6 +59,8 @@ PatchSelector::~PatchSelector() {
   next_patch_ = nullptr;
   save_ = nullptr;
   browse_ = nullptr;
+  rand_from_ref_ = nullptr;
+  rand_from_current_ = nullptr;
 }
 
 void PatchSelector::paintBackground(Graphics& g) {
@@ -88,12 +98,16 @@ void PatchSelector::paintBackground(Graphics& g) {
 void PatchSelector::resized() {
   prev_patch_->setBounds(proportionOfWidth(0.2f), 0,
                          proportionOfWidth(0.1f), proportionOfHeight (1.0f));
-  next_patch_->setBounds(getWidth() - proportionOfWidth(0.1f), 0,
+  next_patch_->setBounds(getWidth() - proportionOfWidth(0.2f), 0,
                          proportionOfWidth(0.1f), proportionOfHeight(1.0f));
   save_->setBounds(proportionOfWidth(0.0f), proportionOfHeight(0.0f),
                    proportionOfWidth(0.2f), proportionOfHeight (0.5f));
   browse_->setBounds(proportionOfWidth(0.0f), proportionOfHeight(0.5f),
                      proportionOfWidth(0.2f), proportionOfHeight (0.5f));
+  rand_from_ref_->setBounds(getWidth() - proportionOfWidth(0.1f), 0,
+                            proportionOfWidth(0.1f), proportionOfHeight (0.5f));
+  rand_from_current_->setBounds(getWidth() - proportionOfWidth(0.1f), proportionOfHeight(0.5f),
+                                proportionOfWidth(0.1f), proportionOfHeight (0.5f));
 
   SynthSection::resized();
 }
@@ -115,6 +129,10 @@ void PatchSelector::buttonClicked(Button* clicked_button) {
     browser_->loadPrevPatch();
   else if (clicked_button == next_patch_)
     browser_->loadNextPatch();
+  else if (clicked_button == rand_from_ref_)
+    browser_->randFromRef();
+  else if (clicked_button == rand_from_current_)
+    browser_->randFromCurrent();
 }
 
 void PatchSelector::newPatchSelected(File patch) {
